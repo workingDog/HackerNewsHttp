@@ -23,8 +23,9 @@ struct HNUser: Identifiable, Codable {
     let submitted: [Int]?
 }
 
-enum StoryType: String {
+enum ItemType: String, CaseIterable, Identifiable {
     case top, new, show, ask, jobs, poll
+    var id: Self { self }
 }
 
 enum Endpoints: String {
@@ -97,7 +98,7 @@ struct Comment: Identifiable, Codable {
     var topStoriesId: [Int] = []
     var stories: [Story] = []
     var comments: [Comment] = []
-    var storyType: StoryType = .new
+    var storyType: ItemType = .new
     
     // @ObservationIgnored @AppStorage("selectedType") var selectedType: StoryType = .new
     @ObservationIgnored static let databaseURL = "https://hacker-news.firebaseio.com"
