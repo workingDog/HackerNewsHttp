@@ -18,7 +18,7 @@ struct ContentView: View {
     var body: some View {
         NavigationStack {
             VStack {
-                ToolsView(selection: $selection)
+                ToolsView(selection: $selection).padding(5)
                 if isLoading {
                     ProgressView()
                 } else {
@@ -65,17 +65,63 @@ struct ToolsView: View {
     
     var body: some View {
         Picker("Flavor", selection: $selection) {
-            Label("Top", systemImage: "flame").tag(ItemType.top)
-            Label("Ask", systemImage: "person.fill.questionmark").tag(ItemType.ask)
-            Label("Show", systemImage: "eye").tag(ItemType.show)
-            Label("Jobs", systemImage: "briefcase").tag(ItemType.jobs)
+            Text("Top").foregroundStyle(selection == ItemType.top ? .red : .blue)
+                .tag(ItemType.top)
+            Text("Ask").foregroundStyle(selection == ItemType.ask ? .red : .blue).tag(ItemType.ask)
+            Text("Show").foregroundStyle(selection == ItemType.show ? .red : .blue)
+                .tag(ItemType.show)
+            Text("Jobs").foregroundStyle(selection == ItemType.jobs ? .red : .blue)
+                .tag(ItemType.jobs)
         }
+        .padding(5)
         .pickerStyle(.segmented)
-        .frame(width: 256)
         .background(Color.red.opacity(0.7))
+        .cornerRadius(15)
+        .frame(width: 256)
+    //    .contentShape(RoundedRectangle(cornerRadius: 15))
+    //    .overlay(RoundedRectangle(cornerRadius: 15).stroke(Color.gray, lineWidth: 2))
     }
 }
 
+struct ToolsView2: View {
+    @Binding var selection: ItemType
+    
+    var body: some View {
+        VStack (spacing: 5) {
+            Picker("Flavor", selection: $selection) {
+                Text("Top").foregroundStyle(selection == ItemType.top ? .red : .blue)
+                    .tag(ItemType.top)
+                Text("Ask").foregroundStyle(selection == ItemType.ask ? .red : .blue).tag(ItemType.ask)
+                Text("Show").foregroundStyle(selection == ItemType.show ? .red : .blue)
+                    .tag(ItemType.show)
+                Text("Jobs").foregroundStyle(selection == ItemType.jobs ? .red : .blue)
+                    .tag(ItemType.jobs)
+            }
+            .pickerStyle(.segmented)
+
+            HStack {
+                Spacer()
+                Image(systemName: "flame")
+                    .foregroundStyle(selection == ItemType.top ? .white : .blue)
+                Spacer()
+                Image(systemName: "person.fill.questionmark")
+                    .foregroundStyle(selection == ItemType.ask ? .white : .blue)
+                Spacer()
+                Image(systemName: "eye")
+                    .foregroundStyle(selection == ItemType.show ? .white : .blue)
+                Spacer()
+                Image(systemName: "briefcase")
+                    .foregroundStyle(selection == ItemType.jobs ? .white : .blue)
+                Spacer()
+            }//.padding(.leading, 3)
+        }
+        .padding(5)
+        .pickerStyle(.segmented)
+        .background(Color.red.opacity(0.8))
+        .cornerRadius(15)
+        .frame(width: 256)
+    }
+}
 
 #Preview {
     ContentView()
