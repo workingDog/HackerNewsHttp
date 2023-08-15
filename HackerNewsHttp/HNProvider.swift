@@ -17,33 +17,56 @@ import Observation
 // not used
 struct HNUser: Identifiable, Codable {
     let id: String
-    let about: String?
     let created: Int
-    let delay: Int?
     let karma: Int
+    let about: String?
     let submitted: [Int]?
 }
 
 enum StoryType: String {
-    case top, new, show, ask, jobs
+    case top, new, show, ask, jobs, poll
 }
 
 enum Endpoints: String {
     case item, user, topstories, newstories, askstories, jobstories, showstories
 }
 
-struct Story: Identifiable, Codable {
-    let id: Int
-    let type: String
+// list of all items properties
+struct HNItem: Identifiable, Codable {
+    let id: Int             // required, the item's unique id.
+    let type: String        // One of "job", "story", "comment", "poll", or "pollopt"
+    var title: String?      // The title of the story, poll or job. HTML.
+    var url: String?        // The URL of the story.
+    var by: String?         // The username of the item's author.
+    var score: Int?         // The story's score, or the votes for a pollopt.
+    var descendants: Int?   // In the case of stories or polls, the total comment count.
+    var time: Int = 0       // Creation date of the item, in Unix Time.
+    var kids: [Int]?        // The ids of the item's comments, in ranked display order.
+    var text: String?       // The comment, story or poll text. HTML.
+    var deleted: Bool?      // true if the item is deleted.
+    var dead: Bool?         // true if the item is dead.
+    var parent: Int?        // The comment's parent: either another comment or the relevant story.
+    var poll: String?       // The pollopt's associated poll.
+    var parts: [Int]?       // A list of related pollopts, in display order.
     
-    var title: String?
-    var url: String?
-    var by: String?
+    var timeAgo: String {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .full
+        return formatter.localizedString(for: Date(timeIntervalSince1970: TimeInterval(time)), relativeTo: Date()).lowercased()
+    }
+   
+}
 
-    var score: Int?
-    var descendants: Int?
-    var time: Int = 0
-    var kids: [Int]?
+struct Story: Identifiable, Codable {
+    let id: Int             // required, the item's unique id.
+    let type: String        // One of "job", "story", "comment", "poll", or "pollopt"
+    var title: String?      // The title of the story, poll or job. HTML.
+    var url: String?        // The URL of the story.
+    var by: String?         // The username of the item's author.
+    var score: Int?         // The story's score, or the votes for a pollopt.
+    var descendants: Int?   // In the case of stories or polls, the total comment count.
+    var time: Int = 0       // Creation date of the item, in Unix Time.
+    var kids: [Int]?        // The ids of the item's comments, in ranked display order.
     
     var timeAgo: String {
         let formatter = RelativeDateTimeFormatter()
@@ -54,17 +77,13 @@ struct Story: Identifiable, Codable {
 }
 
 struct Comment: Identifiable, Codable {
-    let id: Int
-    let type: String
-    
-    var text: String?
-    
-    var by: String?
-    var deleted: Bool?
-    var dead: Bool?
-    var kids: [Int]?
-    var parent: Int?
-    var time: Int
+    let id: Int             // required, the item's unique id.
+    let type: String        // One of "job", "story", "comment", "poll", or "pollopt"
+    var text: String?       // The comment, story or poll text. HTML.
+    var by: String?         // The username of the item's author.
+    var kids: [Int]?        // The ids of the item's comments, in ranked display order.
+    var parent: Int?        // The comment's parent: either another comment or the relevant story.
+    var time: Int = 0       // Creation date of the item, in Unix Time.
     
     var timeAgo: String {
         let formatter = RelativeDateTimeFormatter()
@@ -101,7 +120,9 @@ struct Comment: Identifiable, Codable {
             do {
                 let (data, _) = try await URLSession.shared.data(from: url)
                 let results = try JSONDecoder().decode([Int].self, from: data)
-                self.topStoriesId = Array(results.prefix(maxStories))
+                self.topStoriesId = Array(results[..<maxStories])
+                //Array(results[..<maxStories])
+                //Array(results.prefix(maxStories))
             } catch {
                 print(error)
             }
